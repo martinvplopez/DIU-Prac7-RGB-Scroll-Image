@@ -1,10 +1,12 @@
 
 package com.mycompany.practica7diu;
 
+import java.awt.Dimension;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -22,14 +24,51 @@ public class Practica7 extends javax.swing.JFrame {
     private JFileChooser jf =  new JFileChooser();
     private File fichero;
     private AnalizadorRGB analizador;
+    private int [] max, min, average;
     
     class barListener implements AdjustmentListener{ // Para capturar eventos Scrollbar
 
         @Override
         public void adjustmentValueChanged(AdjustmentEvent e) {
-            System.out.println("Barra desplazada");
-            System.out.println("Posición: " + panelScroll.getViewport().getViewPosition().toString());
-            System.out.println("Tamaño: "+ panelScroll.getViewport().getExtentSize().toString());
+            if(lienzo2.getMatImage()!=null){
+                 
+                Dimension dim;
+                if(panelScroll.getViewport().getExtentSize().height>=lienzo2.getHeight()
+                  && panelScroll.getViewport().getExtentSize().width>=lienzo2.getWidth()){
+                    dim = new Dimension(lienzo2.getWidth(), lienzo2.getHeight());
+                }else if(panelScroll.getViewport().getExtentSize().height>=lienzo2.getHeight()){
+                    dim = new Dimension(panelScroll.getViewport().getExtentSize().width, lienzo2.getHeight());
+                }else if(panelScroll.getViewport().getExtentSize().width>=lienzo2.getWidth()){
+                    dim = new Dimension(lienzo2.getWidth(), panelScroll.getViewport().getExtentSize().height);
+                }else{
+                    dim = panelScroll.getViewport().getExtentSize();
+                }
+                
+                try{
+                    analizador.calculaEstadisticas(lienzo2.getMatImage()
+                    ,panelScroll.getViewport().getViewPosition()
+                    ,dim);
+                }catch(Exception exc){
+                    
+                }
+                
+                
+                max = analizador.getMaximo();
+                min = analizador.getMinimo();
+                average = analizador.getPromedio();
+
+                maxRojoField.setText(max[2]+"");
+                minRojoField.setText(min[2]+"");
+                medRojoField.setText(average[2]+"");
+
+                maxVerdeField.setText(max[1]+"");
+                minVerdeField.setText(min[1]+"");
+                medVerdeField.setText(average[1]+"");
+
+                maxAzulField.setText(max[0]+"");
+                minAzulField.setText(min[0]+"");
+                medAzulField.setText(average[0]+"");
+            }
         }
         
     }
@@ -89,11 +128,11 @@ public class Practica7 extends javax.swing.JFrame {
         lienzo2.setLayout(lienzo2Layout);
         lienzo2Layout.setHorizontalGroup(
             lienzo2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGap(0, 653, Short.MAX_VALUE)
         );
         lienzo2Layout.setVerticalGroup(
             lienzo2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1333, Short.MAX_VALUE)
+            .addGap(0, 344, Short.MAX_VALUE)
         );
 
         panelScroll.setViewportView(lienzo2);
@@ -344,15 +383,21 @@ public class Practica7 extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cerrarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cerrarItemActionPerformed
-        // TODO add your handling code here:
+        int res = JOptionPane.showConfirmDialog(rootPane, "¿Quieres cerrar la aplicación?."
+                ,"Cerrar Aplicación", JOptionPane.YES_NO_OPTION);
+        if(res==JOptionPane.YES_OPTION){
+            System.exit(0);
+            setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+        }
     }//GEN-LAST:event_cerrarItemActionPerformed
 
     private void infoItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoItemActionPerformed
-        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(rootPane, "Carga una imagen y se mostrarán los valores de las componentes RGB " +
+                            "\n" +  "Devs: @martinvplopez, @joelnavri"
+                        , "AYUDA", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_infoItemActionPerformed
 
     private void abrirItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirItemActionPerformed
-        jf.addChoosableFileFilter(new FileNameExtensionFilter("Texto", "txt"));
         jf.addChoosableFileFilter(new FileNameExtensionFilter("Fotos", "jpg", "jpeg", "png"));
         
         int res = jf.showOpenDialog(null);
